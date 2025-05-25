@@ -49,7 +49,7 @@ nav ul li a:hover {
 
 /* Main content styling */
 main {
-  max-width: 800px;
+  max-width: 1300px;
   margin: 0 auto;
 }
 
@@ -89,4 +89,9 @@ pre {
 
 code {
   font-family: 'Courier New', Courier, monospace;
+} 
+
+img {
+  max-width: 100%;
+  height: auto;
 }

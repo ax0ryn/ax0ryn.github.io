@@ -68,12 +68,12 @@ angela
       <p>Accessing <code>/wp-login.php</code> gave me a login page where username enumeration was possible.</p>
 
       <!-- Image placeholder -->
-      <p><em>Here, I tested some usernames and found "elliot" is valid.</em></p>
-      <img src="../images/wp-login-username-enum.png" alt="Username enumeration on login page" />
+      <p><em>Here, I tested some usernames and confirmed we can enumerate usernames.</em></p>
+      <img src="../images/mrrobot/username-enum.png" alt="Username enumeration on login page" />
 
       <!-- Image placeholder -->
       <p><em>Confirmed 'elliot' is a valid username, while guessing main Mr. Robot characters</em></p>
-      <img src="../images/elliot-valid-user.png" alt="Valid username elliot found" />
+      <img src="../images/mrrobot/valid-user.png" alt="Valid username elliot found" />
 
       <p>Next, I brute forced the login using <code>hydra</code> with the cleaned dictionary and username 'elliot':</p>
       <pre><code>hydra -l elliot -p clean-dic.txt 10.10.99.69 http-post-form "/wp-login.php:log=^USER^&amp;pwd=^PASS^:F=Invalid username"

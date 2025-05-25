@@ -76,7 +76,7 @@ angela
       <img src="../images/mrrobot/valid-user.png" alt="Valid username elliot found" />
 
       <p>Next, I brute forced the login using <code>hydra</code> with the cleaned dictionary and username 'elliot':</p>
-      <pre><code>hydra -l elliot -p clean-dic.txt 10.10.99.69 http-post-form "/wp-login.php:log=^USER^&amp;pwd=^PASS^:F=Invalid username"
+      <pre><code>hydra -l elliot -P clean-dic.txt 10.10.99.69 http-post-form "/wp-login.php:log=^USER^&amp;pwd=^PASS^:F=Invalid username"
 </code></pre>
 
       <p>Hydra found a valid password for <code>elliot</code>!</p>

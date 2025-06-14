@@ -1,17 +1,17 @@
 :root {
-  --bg-dark: #121212;
-  --card-bg: #1e1e1e;
-  --accent: #8A2BE2;
-  --text: #e0e0e0;
-  --text-secondary: #b0b0b0;
-  --success: #76ff03;
-  --danger: #ff5252;
-  --warning: #ffd740;
-  --info: #40c4ff;
-  --terminal-bg: #000;
-  --terminal-header: #333;
-  --prompt: #76ff03;
-  --code-bg: #2d2d2d;
+  --bg-dark: #0d1117;  /* GitHub dark theme background */
+  --card-bg: #161b22;  /* Slightly lighter than bg */
+  --accent: #58a6ff;   /* GitHub blue accent */
+  --text: #c9d1d9;     /* Light gray text */
+  --text-secondary: #8b949e;
+  --success: #3fb950;   /* GitHub green */
+  --danger: #f85149;    /* GitHub red */
+  --warning: #d29922;   /* GitHub yellow */
+  --info: #79c0ff;      /* Light blue */
+  --terminal-bg: #0a0d12;
+  --terminal-header: #21262d;
+  --prompt: #3fb950;    /* Green prompt */
+  --code-bg: #161b22;
 }
 
 * {

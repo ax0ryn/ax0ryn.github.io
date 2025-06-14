@@ -222,22 +222,29 @@ pre.command {
   border-left: 3px solid var(--success);
 }
 
+/* ===== Command Blocks ===== */
+pre.command {
+  background-color: #1a1f29; /* New medium-dark blue-gray */
+  color: #f0f0f0; /* Brighter text */
+  padding: 15px 15px 15px 40px;
+  border-left: 3px solid var(--success); /* Green border */
+  position: relative;
+}
+
 pre.command::before {
   content: '$';
-  color: #FFA500; /* Bright orange prompt */
+  color: #FFA500; /* Orange prompt */
   left: 20px;
   font-weight: bold;
   font-size: 15px;
+  position: absolute;
 }
 
-/* Inline code */
-code {
-  background-color: var(--code-bg);
+/* ===== Output Blocks ===== */
+pre {
+  background-color: var(--terminal-bg); /* Dark blue (#0a0d12) */
   color: var(--text);
-  padding: 3px 6px;
-  border-radius: 3px;
-  font-size: 0.9em;
-  border: 1px solid #2a2f36;
+  border-left: 3px solid var(--accent); /* Blue border */
 }
 
 p code, li code {

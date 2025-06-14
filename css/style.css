@@ -191,44 +191,21 @@ pre, code {
   margin: 15px 0;
 }
 
-/* Regular output/code blocks */
-pre {
-  background-color: var(--terminal-bg);
-  color: var(--text);
+/* Shared dark background for BOTH commands and output */
+pre.command, pre {
+  background-color: var(--terminal-bg); /* Dark blue (#0a0d12) */
+  color: var(--text); /* Light gray text */
   border-radius: 6px;
   padding: 15px 15px 15px 40px;
   overflow-x: auto;
-  border-left: 3px solid var(--accent);
   position: relative;
   line-height: 1.5;
   tab-size: 4;
 }
 
-pre::before {
-  content: '⌘';
-  position: absolute;
-  left: 15px;
-  top: 15px;
-  color: var(--accent);
-  font-size: 14px;
-  font-family: sans-serif;
-}
-
-/* Command blocks (user input) */
+/* Command blocks (orange $ + green border) */
 pre.command {
-  background-color: var(--code-bg);
-  color: #e0e0e0; /* Light gray command text */
-  padding: 15px 15px 15px 40px;
-  border-left: 3px solid var(--success);
-}
-
-/* ===== Command Blocks ===== */
-pre.command {
-  background-color: #1a1f29; /* New medium-dark blue-gray */
-  color: #f0f0f0; /* Brighter text */
-  padding: 15px 15px 15px 40px;
   border-left: 3px solid var(--success); /* Green border */
-  position: relative;
 }
 
 pre.command::before {
@@ -240,11 +217,28 @@ pre.command::before {
   position: absolute;
 }
 
-/* ===== Output Blocks ===== */
+/* Output blocks (blue ⌘ + blue border) */
 pre {
-  background-color: var(--terminal-bg); /* Dark blue (#0a0d12) */
-  color: var(--text);
   border-left: 3px solid var(--accent); /* Blue border */
+}
+
+pre::before {
+  content: '⌘';
+  color: var(--accent); /* Blue symbol */
+  left: 15px;
+  font-size: 14px;
+  font-family: sans-serif;
+  position: absolute;
+}
+
+/* Inline code */
+code {
+  background-color: var(--code-bg);
+  color: var(--text);
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  border: 1px solid #2a2f36;
 }
 
 p code, li code {

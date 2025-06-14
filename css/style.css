@@ -95,3 +95,11 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+.whoami {
+  background-color: #333; /* or any other dark shade */
+  color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}

@@ -180,6 +180,11 @@ nav a:hover {
   color: var(--warning);
 }
 
+.difficulty.easy {
+  background-color: rgba(57, 191, 80, 0.2); /* Green with 20% opacity */
+  color: var(--success); /* Bright green text */
+}
+
 .writeup-card p {
   margin-bottom: 15px;
   font-size: 0.95rem;

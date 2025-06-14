@@ -100,13 +100,7 @@ img {
   background-color: #333;
   color: #fff;
   font-family: 'Courier New', monospace;
-  width: 300px;
-  height: 300px;
   padding: 20px;
-  border-radius: 8px;
   margin-bottom: 30px;
-  margin-left: 0;
-  overflow: auto;
-  box-shadow: 0 0 10px rgba(0,255,0,0.2);
+  border-radius: 8px;
 }
-

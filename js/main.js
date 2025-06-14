@@ -2,15 +2,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Add blinking cursor effect
   const blinkElement = document.querySelector('.blink');
   
-  setInterval(() => {
-    blinkElement.style.visibility = blinkElement.style.visibility === 'hidden' ? 'visible' : 'hidden';
-  }, 500);
-  
-  // Terminal typing effect
-  const commands = [
+    const commands = [
     {cmd: 'whoami', output: 'axoryn', delay: 800},
     {cmd: 'cat introduction.txt', output: 'hi, i\'m axoryn. a hobbyist flag collector and offensive security enthusiast\ni create writeups here to help people learn', delay: 1000},
-    {cmd: 'ls writeups/', output: 'mr_robot.html', delay: 800}
+    {cmd: 'ls writeups/', output: 'mr_robot.html\ncyberheroes.html', delay: 800} // Added new file here
   ];
   
   let currentCommand = 0;

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberHeroes CTF Walkthrough - Axoryn</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <header>
+    <h1>CyberHeroes CTF Walkthrough</h1>
+    <nav>
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <section class="writeup-card">
+      <h2>Introduction</h2>
+      <p><strong>Name:</strong> CyberHeroes</p>
+      <p><strong>Challenge type:</strong> Web challenge</p>
+      <p><strong>Rated difficulty:</strong> Easy</p>
+      <p><strong>Objective:</strong> Bypass the login form to get the flag</p>
+    </section>
+
+    <section class="writeup-card">
+      <h2>Nmap Scan Results</h2>
+      <pre><code>PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.48 ((Ubuntu))
+|_http-title: CyberHeros : Index
+|_http-server-header: Apache/2.4.48 (Ubuntu)</code></pre>
+    </section>
+
+    <section class="writeup-card">
+      <h2>Enumerating HTTP</h2>
+      <p>let's intercept this request so that we can test stuff e.g SQLi, username enumeration etc etc</p>
+      
+      <div class="image-container">
+        <img src="../images/cyberheroes/trying-to-intercept-the-req.png" alt="Intercepting request">
+      </div>
+
+      <p>but instead we get this an unexpected response..</p>
+
+      <div class="image-container">
+        <img src="../images/cyberheroes/except-we-get-this.png" alt="Unexpected response">
+      </div>
+
+      <p>after this, i knew the website was authenticating us client side which is a bad idea.</p>
+
+      <p>after opening dev tools and going to <code>login.html</code> we get some hardcoded credentials</p>
+
+      <div class="image-container">
+        <img src="../images/cyberheroes/hardcoded-credentials.png" alt="Hardcoded credentials">
+      </div>
+
+      <p><code>h3ck3rBoi:54321@terceSrepuS</code></p>
+
+      <p>but the password string is reversed, let's fix that</p>
+
+      <pre class="command">──(axoryn㉿vbox)-[~]
+└─$ echo '54321@terceSrepuS' | rev</pre>
+      <pre><code>SuperSeXXXXXXXX</code></pre>
+
+      <p>i'm not showing the real password haha</p>
+
+      <p>after that you can login to the web app and get the flag!!</p>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Axoryn. All rights reserved.</p>
+  </footer>
+</body>
+</html>

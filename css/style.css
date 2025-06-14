@@ -1,11 +1,9 @@
-/* Reset some default styles */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Body styling */
 body {
   font-family: Arial, sans-serif;
   line-height: 1.6;
@@ -14,7 +12,6 @@ body {
   padding: 20px;
 }
 
-/* Header styling */
 header {
   background-color: #333;
   color: #fff;
@@ -47,10 +44,32 @@ nav ul li a:hover {
   text-decoration: underline;
 }
 
-/* Main content styling */
 main {
   max-width: 1300px;
   margin: 0 auto;
+}
+
+.content-wrapper {
+  display: flex;
+  gap: 30px;
+}
+
+.whoami {
+  background-color: #333;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.whoami h2 {
+  margin-bottom: 15px;
+}
+
+.writeups {
+  flex-grow: 1;
 }
 
 /* Writeup cards */
@@ -69,7 +88,6 @@ main {
   margin-bottom: 0;
 }
 
-/* Footer styling */
 footer {
   text-align: center;
   margin-top: 40px;
@@ -78,29 +96,13 @@ footer {
   color: #777;
 }
 
-/* Code blocks */
-pre {
-  background-color: #272822;
-  color: #f8f8f2;
-  padding: 10px;
-  overflow-x: auto;
-  margin-bottom: 20px;
-}
-
-code {
-  font-family: 'Courier New', Courier, monospace;
-} 
-
-img {
-  max-width: 100%;
-  height: auto;
-}
-
-.whoami {
-  background-color: #333;
-  color: #fff;
-  font-family: 'Courier New', monospace;
-  padding: 20px;
-  margin-bottom: 30px;
-  border-radius: 8px;
+@media (max-width: 768px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+  
+  .whoami {
+    width: 100%;
+    margin-bottom: 20px;
+  }
 }

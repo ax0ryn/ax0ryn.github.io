@@ -185,12 +185,13 @@ nav a:hover {
   font-size: 0.95rem;
 }
 
-/* Code Blocks - UPDATED */
+/* ===== Code/Command Blocks ===== */
 pre, code {
   font-family: 'Courier New', monospace;
   margin: 15px 0;
 }
 
+/* Regular output/code blocks */
 pre {
   background-color: var(--terminal-bg);
   color: var(--text);
@@ -213,19 +214,23 @@ pre::before {
   font-family: sans-serif;
 }
 
+/* Command blocks (user input) */
 pre.command {
   background-color: var(--code-bg);
+  color: #e0e0e0; /* Light gray command text */
   padding: 15px 15px 15px 40px;
   border-left: 3px solid var(--success);
 }
 
 pre.command::before {
   content: '$';
-  color: var(--success);
+  color: #FFA500; /* Bright orange prompt */
   left: 20px;
   font-weight: bold;
+  font-size: 15px;
 }
 
+/* Inline code */
 code {
   background-color: var(--code-bg);
   color: var(--text);
@@ -238,7 +243,6 @@ code {
 p code, li code {
   word-break: break-word;
 }
-
 /* Buttons & Footer */
 .btn {
   display: inline-block;

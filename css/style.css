@@ -125,7 +125,7 @@ nav a:hover {
 .writeups-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 25px;
+  gap: 35px;
   margin-top: 30px;
 }
 
@@ -137,6 +137,7 @@ nav a:hover {
   border: 1px solid #333;
   position: relative;
   overflow: hidden;
+  margin-bottom: 40px;
 }
 
 .writeup-card:hover {

@@ -27,7 +27,7 @@
     <section class="writeup-card">
       <h2>Nmap Scan Results</h2>
       <p>we will start by scanning open ports on the target machine, here's what nmap found:</p>
-      <pre><code>zaki@archlinux~$ nmap -p- -sC -sV $IP -oN nmap/full-tcp.nmap 
+      <pre><code>axoryn@archlinux~$ nmap -p- -sC -sV $IP -oN nmap/full-tcp.nmap 
 
 PORT    STATE SERVICE  REASON  VERSION
 22/tcp  open  ssh      syn-ack OpenSSH 8.0 (protocol 2.0)
@@ -67,7 +67,7 @@ root@10.10.11.143's password:</code></pre>
         <img src="../images/paper/weird-header.jpg" alt="X-Backend-Server header">
       </div>
       <p>interesting.. let's add that to our /etc/hosts file:</p>
-      <pre><code>zaki@archlinux~/CTFs/htb/paper$ echo "10.10.11.143    office.paper" | sudo tee -a /etc/hosts</code></pre>
+      <pre><code>axoryn@archlinux~/CTFs/htb/paper$ echo "10.10.11.143    office.paper" | sudo tee -a /etc/hosts</code></pre>
     </section>
 
     <section class="writeup-card">

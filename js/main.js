@@ -2,10 +2,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // Add blinking cursor effect
   const blinkElement = document.querySelector('.blink');
   
-    const commands = [
+  const commands = [
     {cmd: 'whoami', output: 'axoryn', delay: 800},
-    {cmd: 'cat introduction.txt', output: 'hi, i\'m axoryn. a hobbyist flag collector and offensive security enthusiast\ni create writeups here to help people learn', delay: 1000},
-    {cmd: 'ls writeups/', output: 'mr_robot.html\ncyberheroes.html', delay: 800} // Added new file here
+    {
+      cmd: 'cat introduction.txt',
+      output: 'hi, i\'m axoryn. a hobbyist flag collector and offensive security enthusiast\ni create writeups here to help people learn',
+      delay: 1000
+    }
+    // Removed the `ls writeups/` entry
   ];
   
   let currentCommand = 0;

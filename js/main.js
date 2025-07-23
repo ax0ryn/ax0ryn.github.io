@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const blinkElement = document.querySelector('.blink');
   
   const commands = [
-    {cmd: 'whoami', output: 'axoryn', delay: 800},
+    {cmd: 'whoami', output: 'ax0ryn', delay: 800},
     {
       cmd: 'cat introduction.txt',
       output: 'hi, i\'m ax0ryn. a hobbyist flag collector and offensive security enthusiast.\ni create writeups here to help people learn',

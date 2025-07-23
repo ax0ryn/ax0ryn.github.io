@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     {cmd: 'whoami', output: 'axoryn', delay: 800},
     {
       cmd: 'cat introduction.txt',
-      output: 'hi, i\'m axoryn. a hobbyist flag collector and offensive security enthusiast\ni create writeups here to help people learn',
+      output: 'hi, i\'m ax0ryn. a hobbyist flag collector and offensive security enthusiast.\ni create writeups here to help people learn',
       delay: 1000
     }
     // Removed the `ls writeups/` entry
